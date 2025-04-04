@@ -1,0 +1,11 @@
+{
+  "name": "semver",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/manyumanchala-sureify/semver.git",
+  "author": "<manchala.manyu@sureify.com>",
+  "license": "MIT",
+  "dependencies": {
+    "semver": "^7.7.1"
+  }
+}

@@ -12,10 +12,24 @@ jobs:
   release:
     name: Bump Version & Create Release
     runs-on: ubuntu-latest
+    
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures full history and all files
+
+
+      - name: Verify Script Exists After Checkout
+        run: ls -lah scripts/ && file scripts/bump-version.sh
+
+
+      - name: Setup Git Identity
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "GitHub Actions"
+
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,15 +39,22 @@ jobs:
       - name: Install `semver`
         run: npm install -g semver
 
+      - name: Verify Script Exists
+        run: ls -l scripts/
+
       - name: Grant Execute Permission to Script
         run: chmod +x scripts/bump-version.sh
 
       - name: Run Versioning Script
-        run: ./scripts/bump-version.sh patch
-
+        id: bump
+        run: |
+          chmod +x scripts/bump-version.sh
+          NEW_VERSION=$(./scripts/bump-version.sh patch | tail -n 1)  # Ensure only version is set
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Bumped to version: $NEW_VERSION"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v$(git tag --sort=-v:refname | head -n 1)"
+          tag_name: "${{ env.NEW_VERSION }}"
           generate_release_notes: true
